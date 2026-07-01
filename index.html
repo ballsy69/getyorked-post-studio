@@ -1,0 +1,978 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Get Yorked Post Studio</title>
+<meta name="robots" content="noindex, nofollow" />
+<meta name="description" content="Make @get_yorked posts start to finish." />
+<meta name="theme-color" content="#E5122E" />
+<meta name="mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+<meta name="apple-mobile-web-app-title" content="GY Studio" />
+<link rel="manifest" href="manifest.json" />
+<link rel="icon" type="image/png" sizes="192x192" href="icon-192.png" />
+<link rel="apple-touch-icon" href="icon-180.png" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,700&family=Archivo+Black&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --gy-red:#E5122E;
+    --gy-red-dk:#B10E24;
+    --gy-yellow:#FFD400;
+    --ink:#0A0A0A;
+    --bg:#111318;
+    --panel:#181b22;
+    --panel-2:#1f232c;
+    --line:#2a2f3a;
+    --txt:#e9edf4;
+    --muted:#8b93a4;
+    --good:#33d17a;
+    --warn:#ffbe3d;
+    --bad:#ff5b6e;
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg);color:var(--txt);
+    font-family:'DM Sans',system-ui,sans-serif;
+    font-size:15px;line-height:1.45;-webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.grotesk{font-family:'Space Grotesk',sans-serif}
+  button{font-family:inherit;cursor:pointer}
+  a{color:var(--gy-yellow)}
+
+  /* ---------- Top bar ---------- */
+  header.topbar{
+    display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+    padding:calc(12px + env(safe-area-inset-top)) 20px 12px;background:#0c0e12;border-bottom:1px solid var(--line);
+    position:sticky;top:0;z-index:50;
+  }
+  .brandmark{display:flex;align-items:center;gap:10px;font-family:'Archivo Black',sans-serif;letter-spacing:.5px}
+  .brandmark .tag{background:var(--gy-red);color:#fff;padding:3px 9px;border-radius:6px;font-size:15px;transform:skew(-6deg)}
+  .brandmark .sub{color:var(--muted);font-family:'Space Grotesk';font-weight:600;font-size:13px;letter-spacing:1px;text-transform:uppercase}
+  nav.tabs{display:flex;gap:4px;margin-left:8px}
+  nav.tabs button{
+    background:transparent;border:1px solid transparent;color:var(--muted);
+    padding:8px 14px;border-radius:9px;font-weight:600;font-size:14px;
+  }
+  nav.tabs button.active{background:var(--panel-2);color:var(--txt);border-color:var(--line)}
+  header .spacer{flex:1}
+  .pill{font-size:12px;color:var(--muted);border:1px solid var(--line);padding:5px 10px;border-radius:20px}
+
+  /* ---------- Layout ---------- */
+  main{padding:18px 20px 90px;max-width:1500px;margin:0 auto}
+  .studio{display:grid;grid-template-columns:minmax(0,1fr) 460px;gap:20px;align-items:start}
+  @media(max-width:1080px){.studio{grid-template-columns:1fr}}
+
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:16px 16px 18px}
+  .card + .card{margin-top:16px}
+  .card h3{margin:0 0 4px;font-size:15px;letter-spacing:.3px}
+  .card .hint{color:var(--muted);font-size:12.5px;margin:0 0 12px}
+  .section-num{display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;border-radius:6px;background:var(--gy-red);color:#fff;font-weight:700;font-size:12px;margin-right:8px;font-family:'Space Grotesk'}
+
+  label.fld{display:block;font-size:12px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.6px;margin:12px 0 5px}
+  input[type=text],input[type=datetime-local],textarea,select{
+    width:100%;background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
+    border-radius:9px;padding:10px 12px;font-family:inherit;font-size:14.5px;resize:vertical;
+  }
+  input[type=datetime-local]{color-scheme:dark}
+  input[type=text]:focus,input[type=datetime-local]:focus,textarea:focus,select:focus{outline:none;border-color:var(--gy-red)}
+  textarea{min-height:64px;line-height:1.4}
+  .row{display:flex;gap:10px}
+  .row > *{flex:1}
+
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+  .chip{
+    background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
+    padding:7px 12px;border-radius:20px;font-size:13px;font-weight:500;
+  }
+  .chip:hover{border-color:var(--muted)}
+  .chip.active{background:var(--gy-red);border-color:var(--gy-red);color:#fff}
+  .chip.small{padding:5px 10px;font-size:12px}
+  .chip.ghost{background:transparent;border-style:dashed;color:var(--muted)}
+
+  .btn{background:var(--panel-2);border:1px solid var(--line);color:var(--txt);padding:9px 14px;border-radius:9px;font-weight:600;font-size:13.5px}
+  .btn:hover{border-color:var(--muted)}
+  .btn.primary{background:var(--gy-red);border-color:var(--gy-red);color:#fff}
+  .btn.primary:hover{background:var(--gy-red-dk)}
+  .btn.yellow{background:var(--gy-yellow);border-color:var(--gy-yellow);color:#111;font-weight:700}
+  .btn.block{width:100%;justify-content:center;display:flex}
+  .btn-row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+
+  .meter{font-size:12px;color:var(--muted);display:flex;justify-content:space-between;margin-top:6px}
+  .meter b{font-weight:700}
+  .ok{color:var(--good)} .bad{color:var(--bad)} .mid{color:var(--warn)}
+
+  .variations{margin-top:10px;display:flex;flex-direction:column;gap:8px}
+  .var{background:var(--panel-2);border:1px solid var(--line);border-radius:10px;padding:10px 12px;cursor:pointer;font-family:'Space Grotesk';font-weight:600;font-size:14.5px;line-height:1.25}
+  .var:hover{border-color:var(--gy-red)}
+  .var .lbl{display:block;font-family:'DM Sans';font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.7px;color:var(--muted);margin-bottom:4px}
+
+  /* ---------- Preview column ---------- */
+  .previewwrap{position:sticky;top:74px}
+  .canvas-shell{background:#000;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;position:relative}
+  #cover{width:100%;height:auto;display:block}
+  .style-row{display:flex;gap:7px;flex-wrap:wrap;margin:12px 0 4px}
+  .swatches{display:flex;gap:8px;margin-top:8px;align-items:center;flex-wrap:wrap}
+  .sw{width:26px;height:26px;border-radius:6px;border:2px solid var(--line);cursor:pointer}
+  .sw.active{border-color:#fff}
+  .drop{border:1.5px dashed var(--line);border-radius:10px;padding:14px;text-align:center;color:var(--muted);font-size:13px;margin-top:10px;cursor:pointer}
+  .drop.drag{border-color:var(--gy-red);color:var(--txt)}
+  .mini{display:flex;gap:10px;align-items:center;margin-top:10px}
+  .mini label{font-size:12px;color:var(--muted);white-space:nowrap}
+  input[type=range]{width:100%;accent-color:var(--gy-red)}
+
+  /* ---------- Preflight ---------- */
+  .checks{display:flex;flex-direction:column;gap:7px;margin-top:4px}
+  .check{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;padding:8px 10px;border-radius:9px;background:var(--panel-2);border:1px solid var(--line)}
+  .check .ic{width:18px;height:18px;flex:0 0 18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;margin-top:1px}
+  .check.pass .ic{background:rgba(51,209,122,.16);color:var(--good)}
+  .check.fail .ic{background:rgba(255,91,110,.16);color:var(--bad)}
+  .check.warn .ic{background:rgba(255,190,61,.16);color:var(--warn)}
+  .check small{display:block;color:var(--muted);font-size:12px;margin-top:2px}
+
+  /* ---------- Export bar ---------- */
+  .exportbar{
+    position:fixed;left:0;right:0;bottom:0;z-index:40;
+    background:#0c0e12ee;backdrop-filter:blur(8px);border-top:1px solid var(--line);
+    padding:11px 20px;display:flex;gap:10px;align-items:center;
+  }
+  .exportbar .grow{flex:1;color:var(--muted);font-size:12.5px}
+  .toast{position:fixed;bottom:70px;left:50%;transform:translateX(-50%);background:var(--gy-red);color:#fff;padding:10px 18px;border-radius:22px;font-weight:600;font-size:14px;opacity:0;transition:.25s;pointer-events:none;z-index:60}
+  .toast.show{opacity:1;transform:translateX(-50%) translateY(-4px)}
+
+  /* ---------- IG preview ---------- */
+  .igphone{max-width:330px;margin:14px auto 0;background:#000;border-radius:16px;border:1px solid var(--line);overflow:hidden;font-size:13px}
+  .igbar{display:flex;align-items:center;gap:8px;padding:9px 11px}
+  .igava{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,var(--gy-red),var(--gy-yellow))}
+  .igbar b{font-size:13px}
+  .igimg{width:100%;display:block;background:#111}
+  .igacts{padding:8px 11px;color:#eee}
+  .igacts .icons{font-size:17px;letter-spacing:9px}
+  .igcap{padding:2px 11px 12px;color:#eee;line-height:1.4}
+  .igcap .h{color:#c9d0ff}
+
+  /* ---------- Queue ---------- */
+  .queue{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:14px}
+  .qcard{background:var(--panel);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .qcard img{width:100%;display:block;aspect-ratio:4/5;object-fit:cover;background:#000}
+  .qcard .body{padding:10px 12px}
+  .qcard .body .t{font-family:'Space Grotesk';font-weight:600;font-size:13.5px;line-height:1.25;max-height:52px;overflow:hidden}
+  .qcard .body .m{color:var(--muted);font-size:11.5px;margin-top:6px;display:flex;justify-content:space-between}
+  .badge{font-size:10.5px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:2px 7px;border-radius:20px}
+  .badge.outrage{background:rgba(255,91,110,.15);color:var(--bad)}
+  .badge.warmth{background:rgba(51,209,122,.15);color:var(--good)}
+  .badge.news{background:rgba(120,160,255,.15);color:#8ea8ff}
+
+  /* ---------- Playbook ---------- */
+  .pb{max-width:820px}
+  .pb h2{border-left:3px solid var(--gy-red);padding-left:12px;margin-top:26px}
+  .pb table{width:100%;border-collapse:collapse;margin-top:8px;font-size:13.5px}
+  .pb th,.pb td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+  .pb th{background:var(--panel-2);font-family:'Space Grotesk'}
+  .pb code{background:var(--panel-2);padding:2px 6px;border-radius:5px;font-size:12.5px}
+  .hidden{display:none !important}
+  .tiny{font-size:11.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brandmark"><span class="tag">GET</span><span>YORKED</span><span class="sub">Post Studio</span></div>
+  <nav class="tabs">
+    <button data-tab="studio" class="active">Studio</button>
+    <button data-tab="queue">Queue</button>
+    <button data-tab="playbook">Playbook</button>
+  </nav>
+  <div class="spacer"></div>
+  <span class="pill" id="draftPill">Draft not saved</span>
+</header>
+
+<main>
+  <!-- ================= STUDIO ================= -->
+  <section id="tab-studio">
+  <div class="studio">
+    <!-- LEFT: controls -->
+    <div class="controls">
+
+      <div class="card">
+        <h3><span class="section-num">1</span>Angle &amp; content type</h3>
+        <p class="hint">Pick the lane. Outrage + named villain travels (high non-follower reach). Warmth stays inside the audience unless you pair it with an amplifier.</p>
+        <div class="chips" id="typeChips"></div>
+        <div id="modeNote" class="meter" style="margin-top:10px"></div>
+        <div class="btn-row">
+          <button class="btn" id="loadExample">Load example</button>
+          <button class="btn" id="clearAll">Clear</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3><span class="section-num">2</span>Headline (the on-image cover line)</h3>
+        <p class="hint">Formula: <b>[York anchor] + [named subject] + [one declarative claim]</b>. ~90% of GY covers open with York. One claim per cover. Be like water: news 2-4 lines, entertainment 1-2, hard cap 5.</p>
+        <div class="row">
+          <div style="flex:0 0 40%">
+            <label class="fld">York anchor</label>
+            <select id="anchor">
+              <option>York University</option>
+              <option>York's</option>
+              <option>YorkU</option>
+              <option>A York University</option>
+              <option value="">(none / custom)</option>
+            </select>
+          </div>
+          <div>
+            <label class="fld">Named subject</label>
+            <input type="text" id="subject" placeholder="e.g. Professor, residence, exec, the caf" />
+          </div>
+        </div>
+        <label class="fld">The claim (one declarative)</label>
+        <input type="text" id="claim" placeholder="e.g. Just Got Ranked the Worst Dorm on Campus" />
+        <label class="fld">Devices</label>
+        <div class="chips" id="deviceChips">
+          <button class="chip small ghost" data-dev="irony">Add "(?)" irony</button>
+          <button class="chip small ghost" data-dev="aka">AKA nickname</button>
+          <button class="chip small ghost" data-dev="who">"Who Is…?" hook</button>
+          <button class="chip small ghost" data-dev="meet">"Meet ___" tag-on</button>
+          <button class="chip small ghost" data-dev="quote">Hollow-quote</button>
+          <button class="chip small ghost" data-dev="correction">Correction framing</button>
+        </div>
+        <input type="text" id="nickname" class="hidden" placeholder='AKA nickname (e.g. "Pee Pee Poo Poo Man")' style="margin-top:8px" />
+        <div class="btn-row">
+          <button class="btn primary" id="genHeadline">Generate variations</button>
+        </div>
+        <div class="variations" id="headlineVars"></div>
+        <label class="fld">Final headline (goes on the cover)</label>
+        <textarea id="headlineFinal" placeholder="Pick a variation above or write your own"></textarea>
+        <div class="meter" id="headlineMeter"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="section-num">3</span>Caption</h3>
+        <p class="hint">News = numeric-staccato lede ("9 Macaques. 1 lab. 80+ surgeries."). Entertainment = open on a question or contrarian claim, tag the cohort early.</p>
+        <label class="fld">Post format (sets the caption length band)</label>
+        <div class="chips" id="formatChips"></div>
+        <label class="fld">Hook</label>
+        <input type="text" id="hook" placeholder="First line. Stop the scroll." />
+        <label class="fld">Body</label>
+        <textarea id="body" placeholder="The story / context."></textarea>
+        <div class="row">
+          <div>
+            <label class="fld">CTA</label>
+            <input type="text" id="cta" placeholder="e.g. Tag the one who lived here" />
+          </div>
+          <div>
+            <label class="fld">Source line (facts only)</label>
+            <input type="text" id="source" placeholder="e.g. Source: WRPS case WA25086141" />
+          </div>
+        </div>
+        <div class="btn-row">
+          <button class="btn primary" id="genCaption">Draft caption</button>
+          <button class="btn" id="copyCaption">Copy caption</button>
+        </div>
+        <label class="fld">Full caption</label>
+        <textarea id="captionFinal" style="min-height:120px"></textarea>
+        <div class="meter" id="captionMeter"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="section-num">4</span>Hashtags <span class="tiny">(max 5)</span></h3>
+        <div class="chips" id="tagBank"></div>
+        <div class="mini">
+          <input type="text" id="customTag" placeholder="add custom (no #)" />
+          <button class="btn" id="addTag">Add</button>
+        </div>
+        <div class="meter" id="tagMeter"></div>
+      </div>
+
+      <div class="card" id="preflightCard">
+        <h3><span class="section-num">5</span>Pre-flight brand &amp; legal guard</h3>
+        <p class="hint">Auto-checked against the Get Yorked format spec. Red must be cleared before you post.</p>
+        <div class="checks" id="checks"></div>
+      </div>
+
+      <div class="card">
+        <h3><span class="section-num">6</span>Schedule &amp; publish</h3>
+        <p class="hint">Best windows for York students: weekday 12-1pm and 7-9pm, and Sunday evening for the week ahead. Avoid the 2-5pm class block. Breaking news goes the moment it breaks.</p>
+        <div class="row">
+          <div><label class="fld">Planned post time</label><input type="datetime-local" id="postTime" /></div>
+          <div style="flex:0 0 auto;display:flex;align-items:flex-end"><button class="btn" id="icsBtn">Add reminder (.ics)</button></div>
+        </div>
+        <label class="fld">Publish handoff</label>
+        <div class="checks" id="publishSteps"></div>
+        <p class="tiny">Studio builds the cover (slide 1). For a carousel, add your extra real-photo slides in the IG composer. Warmth posts: line up an amplifier reshare or pin a stakes comment first, or reach caps inside your audience.</p>
+      </div>
+
+    </div>
+
+    <!-- RIGHT: live preview -->
+    <div class="previewwrap">
+      <div class="card">
+        <h3>Cover preview <span class="tiny">1080 &times; 1350 &middot; 4:5</span></h3>
+        <div class="canvas-shell">
+          <canvas id="cover" width="1080" height="1350"></canvas>
+        </div>
+
+        <div class="style-row" id="styleRow"></div>
+
+        <label class="fld">Cover background, real photo only, never AI</label>
+        <div class="drop" id="drop">Drop a photo here, or click to upload<br><span class="tiny">campus, screenshot, submission, stock. NOT AI-generated.</span></div>
+        <input type="file" id="file" accept="image/*" class="hidden" />
+        <div class="mini"><label>Zoom</label><input type="range" id="imgZoom" min="100" max="260" value="100" /></div>
+        <div class="mini"><label>Y pos</label><input type="range" id="imgY" min="0" max="100" value="50" /></div>
+        <div class="mini"><label>Scrim</label><input type="range" id="scrim" min="0" max="90" value="55" /></div>
+
+        <label class="fld">Handle &amp; category tag</label>
+        <div class="row">
+          <input type="text" id="handle" value="@get_yorked" />
+          <input type="text" id="catTag" placeholder="tag e.g. BREAKING / DORM RANKING" />
+        </div>
+        <div class="swatches" id="swatches"></div>
+      </div>
+
+      <div class="card">
+        <h3>As it lands in feed</h3>
+        <div class="igphone">
+          <div class="igbar"><div class="igava"></div><b id="igHandle">@get_yorked</b><span style="margin-left:auto;color:#888">•••</span></div>
+          <img id="igImg" class="igimg" alt="post preview" />
+          <div class="igacts"><div class="icons">♡  💬  ➤</div></div>
+          <div class="igcap"><b id="igHandle2">@get_yorked</b> <span id="igCap"></span> <span class="h" id="igTags"></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  </section>
+
+  <!-- ================= QUEUE ================= -->
+  <section id="tab-queue" class="hidden">
+    <div class="card" style="display:flex;align-items:center;gap:14px;flex-wrap:wrap">
+      <div>
+        <h3 style="margin:0">Content queue</h3>
+        <p class="hint" style="margin:2px 0 0">Saved drafts live in your browser. Pairing rule: never drop a warmth post cold. Anchor it after a fresh outrage/news post, or line up an amplifier reshare.</p>
+      </div>
+      <div class="spacer" style="flex:1"></div>
+      <button class="btn primary" id="saveDraft">Save current post to queue</button>
+    </div>
+    <div class="queue" id="queue" style="margin-top:16px"></div>
+    <p id="queueEmpty" class="tiny" style="text-align:center;margin-top:30px">No saved posts yet. Build one in Studio, then Save.</p>
+  </section>
+
+  <!-- ================= PLAYBOOK ================= -->
+  <section id="tab-playbook" class="hidden">
+    <div class="pb">
+      <h2>The Get Yorked cover</h2>
+      <p>Twitter-headline-then-media. One York-anchored declarative claim on the cover, the media carries the rest. 1080&times;1350 (4:5). Cover headline auto-fits with a &ge;64px floor; any body text you add on later carousel slides stays &ge;36px so it reads on a phone. Fonts: Space Grotesk + DM Sans. <b>No AI-generated images, ever</b>, audience punishes it. No em-dashes.</p>
+
+      <h2>Headline formula</h2>
+      <p><code>[York anchor] + [named subject] + [one specific declarative claim]</code>. ~90% of covers open with York University / York's / YorkU. Name the individual, state the specific claim, active voice, one claim per cover.</p>
+      <table>
+        <tr><th>Device</th><th>When</th><th>Example shape</th></tr>
+        <tr><td>"(?)" irony</td><td>Sarcastic / rating posts</td><td>Worst (?) Rated Professor</td></tr>
+        <tr><td>AKA nickname</td><td>Recurring characters</td><td>… AKA Pee Pee Poo Poo Man</td></tr>
+        <tr><td>"Who Is…?"</td><td>Identity / mystery</td><td>Who Is York's …?</td></tr>
+        <tr><td>Hollow-quote</td><td>Institution's own weak words</td><td>York's Official Response: "…"</td></tr>
+        <tr><td>Correction framing</td><td>Subvert the assumption</td><td>They Were Retired, Not Killed</td></tr>
+      </table>
+
+      <h2>Caption</h2>
+      <table>
+        <tr><th>Mode</th><th>Hook</th><th>Length</th></tr>
+        <tr><td>News</td><td>Numeric-staccato lede, then narrative</td><td>Carousel 60-120 words</td></tr>
+        <tr><td>Entertainment</td><td>Question or contrarian claim, tag cohort early</td><td>Single 20-50 words</td></tr>
+        <tr><td>Reel</td><td>Let the video carry</td><td>&le;30 words</td></tr>
+      </table>
+      <p>Source footer on facts only (drop it on pure CTAs). Max 5 hashtags. First-person plural "we"/"us" as the brand.</p>
+
+      <h2>Reach: outrage vs warmth</h2>
+      <p>Outrage + named villain + breaking = shares/comments = cold reach (Crawford/Kar: 143K views, 60% non-follower). Warmth = likes, stays inside the audience (Boo &amp; Gerdie: 15.6% non-follower). To run warmth without capping out: line up an amplifier reshare, pair it after a fresh outrage anchor, and re-inject stakes in a pinned comment.</p>
+
+      <h2>Named-accusation guard (do not skip)</h2>
+      <p>Before any post names a real person with a wrongdoing claim, all four must be true:</p>
+      <ol>
+        <li>A retrievable police / news / court record naming <b>this</b> person.</li>
+        <li>The actual charge, stated as charged-not-convicted, and only if it relates to the characterization.</li>
+        <li>The person had a chance to respond.</li>
+        <li>The post states it is an unproven allegation.</li>
+      </ol>
+      <p>Otherwise: <b>alleged + user-sourced altitude only</b>. No identifiable face on an unverified criminal/sexual imputation against a private individual. Attribute relentlessly ("per LCA / per WRPS"), never assert as GY's own finding.</p>
+      <p class="tiny">Distilled from memory/social/get-yorked-format.md, projects/get-yorked.md, and the Dan-the-Man + LCA verification memories.</p>
+    </div>
+  </section>
+</main>
+
+<div class="exportbar">
+  <span class="grow" id="statusLine">Ready.</span>
+  <button class="btn" id="copyAll">Copy full post</button>
+  <button class="btn yellow" id="downloadPng">Download cover PNG</button>
+  <button class="btn primary" id="saveDraft2">Save to queue</button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   Get Yorked Post Studio, single-file app
+   ============================================================ */
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+
+/* ---------- content-type presets ---------- */
+const TYPES = {
+  news:      {label:'Campus News',      mode:'news',    reach:'travels',  tags:['yorku','yorkuniversity','york','toronto','northyork']},
+  dorm:      {label:'Dorm Ranking',     mode:'ent',     reach:'medium',   tags:['yorku','yorkuniversity','yorku2030','residence','torontostudent']},
+  acceptance:{label:'Acceptance Season',mode:'ent',     reach:'medium',   tags:['yorku2030','yorku','acceptance','classof2030','yorkuniversity']},
+  lca:       {label:'LCA / Investigation',mode:'news',  reach:'travels',  tags:['yorku','animaltesting','lastchanceforanimals','toronto','yorkuniversity']},
+  ent:       {label:'Entertainment / Meme',mode:'ent',  reach:'medium',   tags:['yorku','yorkmemes','torontostudent','yorku2029','northyork']},
+  confession:{label:'Confession (@yorku_tea)',mode:'ent',reach:'medium',  tags:['yorku','yorkutea','yorkuconfessions','torontostudent','yorku2029']},
+  warmth:    {label:'Warmth / Resolution',mode:'ent',   reach:'stays',    tags:['yorku','goodnews','toronto','yorkuniversity','northyork']},
+};
+const MODE_NOTE = {
+  travels:'<span class="ok">Outrage lane</span>, shares + comments drive cold reach. Named villain + specific claim = breakout potential.',
+  medium: '<span class="mid">Mid lane</span>, solid in-audience play. A strong hook + cohort tag lifts reach.',
+  stays:  '<span class="bad">Warmth stays home</span>, likes, not shares. Pair it AFTER a fresh outrage anchor or line up an amplifier reshare, or it caps out inside the audience.',
+};
+
+/* ---------- hashtag bank ---------- */
+const TAG_BANK = ['yorku','yorkuniversity','yorku2030','yorku2029','yorku2028','york','yorklions','glendon','keele','torontostudent','northyork','toronto','yorkutea','yorkuconfessions','yorkmemes','residence','acceptance','classof2030','uni','collegelife','animaltesting','lastchanceforanimals','goodnews'];
+
+/* ---------- templates ---------- */
+const STYLES = {
+  rtn:    {label:'RTN Red',      band:'#E5122E', bandTxt:'#fff', headBg:'rgba(0,0,0,.0)', headTxt:'#fff'},
+  bar:    {label:'Headline Bar', band:'#0A0A0A', bandTxt:'#fff', headBg:'#E5122E',        headTxt:'#fff'},
+  breaking:{label:'Breaking',    band:'#0A0A0A', bandTxt:'#FFD400',headBg:'rgba(0,0,0,.0)',headTxt:'#fff'},
+  minimal:{label:'Minimal',      band:'#ffffff', bandTxt:'#0A0A0A',headBg:'rgba(0,0,0,.0)',headTxt:'#fff'},
+};
+const PALETTES = ['#E5122E','#0A0A0A','#FFD400','#1447E6','#0f8a4b','#7a1fa2'];
+
+/* ---------- example posts ---------- */
+const EXAMPLES = {
+  news:{anchor:'York University',subject:'',claim:'Cut Reading Week to Two Days and Told No One',cat:'BREAKING',hook:'2 days. That\'s the entire 2027 reading week.',body:'York quietly updated the academic calendar. No email, no announcement. Students found out from the registrar portal. We only post what we can attribute, so here is the screenshot.',cta:'Tag someone who booked a trip already',source:'Source: York U academic calendar 2026-27'},
+  dorm:{anchor:'York University',subject:'Calumet',claim:'Just Got Ranked the Worst Res on Campus',cat:'DORM RANKING',hook:'Hot take: is Calumet actually the worst res at York?',body:'We ranked all 8 residences on price, room size, noise, and how far the walk to class is in February. The bottom of the list surprised no one who lived there.',cta:'Tag the one who survived a year here',source:''},
+  warmth:{anchor:'York\'s',subject:'Retired Macaques',claim:'Boo and Gerdie Made It Out of the Lab',cat:'',hook:'Two of the nine got out.',body:'Boo and Gerdie are at a sanctuary now, grooming in the sun for the first time. The other 9 are still inside York\'s lab right now. Reshare so they get out too.',cta:'Share so the other 9 make it out',source:'Photos: @storybookmonkeys'},
+};
+
+/* ---------- state ---------- */
+const FORMATS = {
+  carousel:{label:'Carousel', band:[60,120]},
+  single:  {label:'Single image', band:[20,50]},
+  reel:    {label:'Reel', band:[0,30]},
+};
+let S = {
+  type:'news', style:'rtn', format:'carousel', devices:new Set(), tags:new Set(TYPES.news.tags),
+  img:null, imgZoom:100, imgY:50, scrim:55, accent:'#E5122E',
+};
+function capBand(){ return FORMATS[S.format].band; }
+let fontsReady=false;
+
+/* ---------- init UI ---------- */
+function buildTypeChips(){
+  const el=$('#typeChips'); el.innerHTML='';
+  Object.entries(TYPES).forEach(([k,v])=>{
+    const b=document.createElement('button');
+    b.className='chip'+(S.type===k?' active':''); b.textContent=v.label; b.dataset.k=k;
+    b.onclick=()=>{S.type=k; S.tags=new Set(TYPES[k].tags); buildTypeChips(); buildTagBank(); syncModeNote(); render();};
+    el.appendChild(b);
+  });
+}
+function syncModeNote(){ $('#modeNote').innerHTML=MODE_NOTE[TYPES[S.type].reach]; }
+
+function buildStyleRow(){
+  const el=$('#styleRow'); el.innerHTML='';
+  Object.entries(STYLES).forEach(([k,v])=>{
+    const b=document.createElement('button');
+    b.className='chip small'+(S.style===k?' active':''); b.textContent=v.label;
+    b.onclick=()=>{S.style=k; buildStyleRow(); render();};
+    el.appendChild(b);
+  });
+}
+function buildFormatChips(){
+  const el=$('#formatChips'); el.innerHTML='';
+  Object.entries(FORMATS).forEach(([k,v])=>{
+    const b=document.createElement('button');
+    b.className='chip small'+(S.format===k?' active':''); b.textContent=`${v.label} (${v.band[0]}-${v.band[1]}w)`;
+    b.onclick=()=>{S.format=k; buildFormatChips(); captionMeter();};
+    el.appendChild(b);
+  });
+}
+function buildSwatches(){
+  const el=$('#swatches'); el.innerHTML='<span class="tiny">Accent:</span>';
+  PALETTES.forEach(c=>{
+    const d=document.createElement('div'); d.className='sw'+(S.accent===c?' active':''); d.style.background=c;
+    d.onclick=()=>{S.accent=c; buildSwatches(); render();};
+    el.appendChild(d);
+  });
+}
+function buildTagBank(){
+  const el=$('#tagBank'); el.innerHTML='';
+  const all=[...new Set([...TAG_BANK,...S.tags])];
+  all.forEach(t=>{
+    const b=document.createElement('button');
+    b.className='chip small'+(S.tags.has(t)?' active':''); b.textContent='#'+t;
+    b.onclick=()=>{ if(S.tags.has(t))S.tags.delete(t); else{ if(S.tags.size>=5){toast('5 hashtag max');return;} S.tags.add(t);} buildTagBank(); syncTags(); };
+    el.appendChild(b);
+  });
+  syncTags();
+}
+function syncTags(){
+  const n=S.tags.size;
+  $('#tagMeter').innerHTML=`<span>${n}/5 selected</span><span class="${n>5?'bad':n===0?'mid':'ok'}">${[...S.tags].map(t=>'#'+t).join(' ')||'none'}</span>`;
+  $('#igTags').textContent=[...S.tags].map(t=>'#'+t).join(' ');
+  render(); runChecks();
+}
+
+/* ---------- utilities ---------- */
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function hasDash(s){return /[—–]|--/.test(s);} // em-dash, en-dash, double-hyphen
+
+/* ---------- headline engine ---------- */
+function titleCase(s){return s.replace(/\w\S*/g,w=>w.length>3||/^[A-Z0-9]/.test(w)?w.charAt(0).toUpperCase()+w.slice(1):w);}
+function genHeadlines(){
+  const anchor=$('#anchor').value.trim();
+  const subj=$('#subject').value.trim();
+  const claimRaw=$('#claim').value.trim();
+  if(!claimRaw && !subj){ toast('Add a subject or claim first'); return; }
+  const A=anchor, S1=titleCase(subj), C=titleCase(claimRaw);
+  const nick=$('#nickname').value.trim();
+  const out=[];
+  const base=[A,S1,C].filter(Boolean).join(' ').replace(/\s+/g,' ').trim();
+  out.push(['Straight declarative', base]);
+  if(S1&&C) out.push(['Meet tag-on', `${A} ${C}. Meet ${S1}.`.replace(/\s+/g,' ').trim()]);
+  if(C) out.push(['Hollow-quote', `${A?A+' ':''}Official Response: "${C}"`.trim()]);
+  if(S1) out.push(['Who is hook', `Who Is ${A?A+' ':''}${S1}?${C?' '+C+'.':''}`.replace(/\s+/g,' ').trim()]);
+  if(C) out.push(['Correction framing', flipCorrection(A,S1,C)]);
+  if(C) out.push(['Irony marker', addIrony(base)]);
+  // apply active devices as extra featured variants
+  if(S.devices.has('aka')&&S1) out.push(['AKA branding', `${base} AKA ${nick||'[nickname]'}`]);
+  const seen=new Set(); const uniq=out.filter(([l,t])=>{const k=t.toLowerCase();if(seen.has(k))return false;seen.add(k);return true;});
+  const box=$('#headlineVars'); box.innerHTML='';
+  uniq.forEach(([lbl,txt])=>{
+    const d=document.createElement('div'); d.className='var';
+    const lb=document.createElement('span'); lb.className='lbl'; lb.textContent=lbl;
+    d.appendChild(lb); d.appendChild(document.createTextNode(txt)); // textNode = XSS-safe
+    d.onclick=()=>{$('#headlineFinal').value=txt; headlineMeter(); render(); runChecks();};
+    box.appendChild(d);
+  });
+}
+function addIrony(s){
+  // insert (?) after a rating/quality adjective if present, else append
+  const m=s.match(/\b(Best|Worst|Top|Greatest|Safest|Cleanest|Nicest|Smartest)\b/i);
+  if(m) return s.replace(m[0], m[0]+' (?)');
+  return s+' (?)';
+}
+function flipCorrection(A,S1,C){
+  return `${S1?S1+' ':''}${A?"Wasn't What "+A+" Said. ":"Not What You Think. "}${C}.`.replace(/\s+/g,' ').trim();
+}
+
+/* ---------- caption engine ---------- */
+function genCaption(){
+  const t=TYPES[S.type];
+  const hook=$('#hook').value.trim();
+  const body=$('#body').value.trim();
+  const cta=$('#cta').value.trim();
+  const src=$('#source').value.trim();
+  let lead=hook;
+  if(!lead){
+    lead = t.mode==='news' ? 'Here\'s what we can confirm.' : 'Hot take.';
+  }
+  let parts=[lead];
+  if(body) parts.push(body);
+  if(cta) parts.push('👉 '+cta);
+  if(src) parts.push(src);
+  const cap=parts.join('\n\n');
+  $('#captionFinal').value=cap;
+  captionMeter(); render(); runChecks();
+}
+
+/* ---------- meters ---------- */
+function lineCount(s){return s.split('\n').filter(x=>x.trim()).length;}
+function headlineMeter(){
+  const v=$('#headlineFinal').value.trim();
+  const lines=lineCount(v)|| (v?1:0);
+  const words=v?v.split(/\s+/).length:0;
+  const yorkAnchored=/^\s*(york|yorku|a york)/i.test(v);
+  const isNews=TYPES[S.type].mode==='news';
+  const cap=isNews?4:2;
+  const lo=isNews?2:1;
+  const inRange = !v || (lines>=lo && lines<=cap);
+  const rangeTxt = isNews?'2-4 lines, hard cap 5':'1-2 lines';
+  const el=$('#headlineMeter');
+  el.innerHTML=`<span class="${!v?'':inRange?'ok':'mid'}">${words} words · ${lines} line${lines===1?'':'s'} (target ${rangeTxt})${isNews&&v&&lines<2?' · 2-line news cover is the algo default':''}</span>
+    <span class="${yorkAnchored?'ok':'bad'}">${yorkAnchored?'✓ York-anchored':'✗ not York-anchored'}</span>`;
+  render(); runChecks();
+}
+function captionMeter(){
+  const v=$('#captionFinal').value.trim();
+  const words=v?v.split(/\s+/).length:0;
+  const em=hasDash(v);
+  const band=capBand();
+  const inBand=words>=band[0]&&words<=band[1];
+  const cls=words===0?'mid':inBand?'ok':'mid';
+  $('#captionMeter').innerHTML=`<span>${words} words · ${FORMATS[S.format].label} band ${band[0]}-${band[1]}</span>
+    <span class="${cls}">${words===0?'empty':inBand?'✓ in band':'off band'}</span>
+    ${em?'<span class="bad">✗ em-dash</span>':''}`;
+  $('#igCap').textContent=v;
+  runChecks();
+}
+
+/* ---------- pre-flight checks ---------- */
+function runChecks(){
+  const h=$('#headlineFinal').value.trim();
+  const cap=$('#captionFinal').value.trim();
+  const type=TYPES[S.type];
+  const checks=[];
+  // york anchored
+  checks.push(cond(/^(york|yorku|a york)/i.test(h),
+    'Headline is York-anchored','Open the cover with York University / York\'s / YorkU',(h?'warn':'warn')));
+  // one claim (no double sentence heavy)
+  const sentences=(h.match(/[.!?]/g)||[]).length;
+  checks.push(cond(sentences<=2,'One clear claim on the cover','Cover is running multiple sentences, trim to one declarative + optional tag-on','warn'));
+  // line cap
+  const lines=lineCount(h)||(h?1:0);
+  checks.push(cond(lines<=5,'Headline within line cap (&le;5)',`Headline is ${lines} lines, over the hard cap of 5`, 'fail'));
+  // em dash
+  checks.push(cond(!hasDash(h+' '+cap),'No em-dashes','Remove em / en-dashes and -- (universal Bob rule)','fail'));
+  // caption band (by chosen post format)
+  const words=cap?cap.split(/\s+/).length:0;
+  const band=capBand();
+  checks.push(cond(words>=band[0]&&words<=band[1],`Caption in band (${band[0]}-${band[1]} words, ${FORMATS[S.format].label})`,`Caption is ${words} words, outside the ${band[0]}-${band[1]} band for a ${FORMATS[S.format].label}`,'warn'));
+  // hashtags
+  checks.push(cond(S.tags.size>=1&&S.tags.size<=5,'Hashtags 1-5','Use 1 to 5 hashtags (IG cap is 5 that count)','fail'));
+  // real image
+  checks.push(cond(!!S.img,'Real cover photo attached','No AI images. Drop a real photo (campus, screenshot, submission, stock)','warn'));
+  // defamation guard for named-accusation (heuristic tripwire, errs toward over-firing)
+  S.accusationOpen=false;
+  const accusatory=/\b(charg(ed|es)|arrest(ed)?|predator|assault(ed|ing)?|fraud|abuse[ds]?|theft|stole|stolen|kill(ed|ing)?|murder(ed)?|voyeur|guilty|criminal|rape[ds]?|rapist|scam(med)?|molest(ed|er)?|pedophile|paedophile|harass(ed|ment)?|misconduct|groom(ed|ing|er)?)\b/i.test(h+' '+cap);
+  if(accusatory){
+    S.accusationOpen=true;
+    checks.push(cond(false,'Named-accusation guard TRIGGERED',
+      'This post makes a wrongdoing claim. Clear ALL 4 before posting: (1) retrievable police/news/court record naming this person (2) actual charge, charged-not-convicted (3) person got a chance to respond (4) post says it\'s an unproven allegation. Else: alleged + user-sourced altitude only, no identifiable face. Export will ask you to confirm.','fail'));
+  }
+  const el=$('#checks'); el.innerHTML='';
+  let fails=0;
+  checks.forEach(c=>{ if(c.state==='fail')fails++;
+    const d=document.createElement('div'); d.className='check '+c.state;
+    d.innerHTML=`<span class="ic">${c.state==='pass'?'✓':c.state==='warn'?'!':'✕'}</span><div><b>${c.label}</b>${c.state!=='pass'?`<small>${c.detail}</small>`:''}</div>`;
+    el.appendChild(d);
+  });
+  $('#statusLine').innerHTML = fails? `<span class="bad">${fails} blocker${fails>1?'s':''} to clear before posting</span>` : `<span class="ok">Clean, ready to export &amp; post</span>`;
+}
+function cond(ok,label,detail,failState){ return {state:ok?'pass':failState, label, detail}; }
+
+/* ---------- canvas render ---------- */
+function render(){
+  const c=$('#cover'), x=c.getContext('2d'); const W=1080,H=1350;
+  x.clearRect(0,0,W,H);
+  // background
+  if(S.img){
+    drawCover(x,S.img,W,H);
+    x.fillStyle=`rgba(0,0,0,${S.scrim/100})`;
+    x.fillRect(0,0,W,H);
+    // bottom gradient for legibility
+    const g=x.createLinearGradient(0,H*0.45,0,H);
+    g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1,'rgba(0,0,0,.75)');
+    x.fillStyle=g; x.fillRect(0,0,W,H);
+  } else {
+    x.fillStyle='#141414'; x.fillRect(0,0,W,H);
+    x.fillStyle='#1c1c1c';
+    for(let i=0;i<H;i+=54){x.fillRect(0,i,W,2);}
+  }
+  const st=STYLES[S.style];
+  const pad=64;
+  // top brand band
+  x.fillStyle=S.style==='rtn'?S.accent:st.band;
+  const bandH=96;
+  x.fillRect(0,0,W,bandH);
+  x.fillStyle=st.bandTxt;
+  x.textBaseline='middle';
+  x.font='700 46px "Archivo Black","Space Grotesk",sans-serif';
+  x.fillText('GET YORKED', pad, bandH/2+2);
+  // handle right in band
+  const handle=$('#handle').value||'@get_yorked';
+  x.font='600 30px "Space Grotesk",sans-serif';
+  x.textAlign='right'; x.fillText(handle, W-pad, bandH/2+2); x.textAlign='left';
+
+  // category tag
+  const cat=$('#catTag').value.trim();
+  let yCursor=bandH+56;
+  if(cat){
+    x.font='700 34px "Space Grotesk",sans-serif';
+    const tw=x.measureText(cat.toUpperCase()).width;
+    x.fillStyle=S.style==='breaking'?'#FFD400':S.accent;
+    x.fillRect(pad, yCursor-8, tw+36, 56);
+    x.fillStyle=S.style==='breaking'?'#000':'#fff';
+    x.textBaseline='middle';
+    x.fillText(cat.toUpperCase(), pad+18, yCursor+20);
+    yCursor+=92;
+  }
+
+  // headline, bottom anchored, auto-fit
+  const head=($('#headlineFinal').value||'').trim() || 'Your York-anchored headline goes here';
+  drawHeadline(x,head,W,H,pad,st,yCursor);
+
+  // source line
+  const src=$('#source').value.trim();
+  if(src){
+    x.font='500 26px "DM Sans",sans-serif';
+    x.fillStyle='rgba(255,255,255,.82)';
+    x.textBaseline='alphabetic';
+    x.fillText(src.slice(0,80), pad, H-40);
+  }
+  // sync IG preview
+  try{
+    const url=c.toDataURL('image/png');
+    $('#igImg').src=url;
+  }catch(e){}
+  $('#igHandle').textContent=handle; $('#igHandle2').textContent=handle;
+  $('#igCap').textContent=$('#captionFinal').value.trim();
+}
+
+function drawCover(x,img,W,H){
+  const z=S.imgZoom/100;
+  const ir=img.width/img.height, cr=W/H;
+  let dw,dh;
+  if(ir>cr){ dh=H*z; dw=dh*ir; } else { dw=W*z; dh=dw/ir; }
+  const dx=(W-dw)/2;
+  const dy=(H-dh)*(S.imgY/100);
+  x.drawImage(img,dx,dy,dw,dh);
+}
+
+function drawHeadline(x,text,W,H,pad,st,topBound){
+  const maxW=W-pad*2;
+  let size=104; const floor=64; const maxLines=(TYPES[S.type].mode==='news')?4:2;
+  let lines=[];
+  x.textAlign='left';
+  while(size>=floor){
+    x.font=`700 ${size}px "Space Grotesk",sans-serif`;
+    lines=wrap(x,text,maxW);
+    if(lines.length<=maxLines || size<=floor) break;
+    size-=3;
+  }
+  x.font=`700 ${size}px "Space Grotesk",sans-serif`;
+  lines=wrap(x,text,maxW);
+  // still over the cap at the floor: hard-truncate with an ellipsis so nothing spills off-canvas
+  if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/[\s.,]+$/,'')+'…'; }
+  const lh=size*1.06;
+  const blockH=lines.length*lh;
+  const srcReserve = $('#source').value.trim()?66:40;
+  let y=(H-srcReserve)-blockH+lh*0.80;                 // bottom-anchored above the source band
+  const minY=(topBound||160)+lh*0.80;                  // never cross the brand band / category tag
+  if(y<minY) y=minY;
+  // draw highlight bar behind if 'bar' style
+  lines.forEach((ln)=>{
+    if(S.style==='bar'){
+      x.font=`700 ${size}px "Space Grotesk",sans-serif`;
+      const w=x.measureText(ln).width;
+      x.fillStyle=st.headBg;
+      x.fillRect(pad-14, y-size*0.82, w+28, size*1.06);
+    }
+    x.fillStyle= S.style==='minimal' ? '#fff' : st.headTxt;
+    x.textBaseline='alphabetic';
+    // subtle shadow for legibility on photos
+    if(S.img && S.style!=='bar'){ x.shadowColor='rgba(0,0,0,.55)'; x.shadowBlur=12; x.shadowOffsetY=2; }
+    x.fillText(ln, pad, y);
+    x.shadowColor='transparent'; x.shadowBlur=0; x.shadowOffsetY=0;
+    y+=lh;
+  });
+}
+function wrap(x,text,maxW){
+  const words=text.split(/\s+/).filter(Boolean); const lines=[]; let cur='';
+  const hardBreak=w=>{ // a single token wider than the line: break it by characters
+    while(x.measureText(w).width>maxW && w.length>1){
+      let i=1; while(i<w.length && x.measureText(w.slice(0,i+1)).width<=maxW) i++;
+      lines.push(w.slice(0,i)); w=w.slice(i);
+    }
+    return w;
+  };
+  words.forEach(w=>{
+    if(x.measureText(w).width>maxW){ if(cur){lines.push(cur);cur='';} w=hardBreak(w); }
+    const t=cur?cur+' '+w:w;
+    if(x.measureText(t).width>maxW && cur){ lines.push(cur); cur=w; }
+    else cur=t;
+  });
+  if(cur)lines.push(cur);
+  return lines;
+}
+
+/* ---------- image upload ---------- */
+function loadImageFile(f){
+  if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ const im=new Image(); im.onload=()=>{ S.img=im; render(); runChecks(); toast('Photo loaded'); }; im.src=e.target.result; };
+  r.readAsDataURL(f);
+}
+
+/* ---------- export ---------- */
+function accusationGate(){
+  // enforced 4-gate defamation confirmation before anything leaves the app
+  if(!S.accusationOpen) return true;
+  return confirm('DEFAMATION GUARD\n\nThis post makes a wrongdoing claim about someone. Only continue if ALL four are true:\n\n1. A retrievable police / news / court record names this person.\n2. You state the actual charge, as charged-not-convicted.\n3. The person had a chance to respond.\n4. The post says it is an unproven allegation.\n\nOtherwise: alleged + user-sourced altitude only, and no identifiable face.\n\nClick OK only if all four are cleared.');
+}
+async function downloadPng(){
+  if(!accusationGate()) { toast('Export held, clear the 4 gates first'); return; }
+  try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
+  render();
+  $('#cover').toBlob(b=>{
+    if(!b){ toast('Export failed, try again'); return; }
+    const a=document.createElement('a');
+    const name=(($('#subject').value||S.type)+'-'+Date.now()).replace(/[^a-z0-9]+/gi,'-').toLowerCase();
+    a.href=URL.createObjectURL(b); a.download='getyorked-'+name+'.png'; a.click();
+    setTimeout(()=>URL.revokeObjectURL(a.href),4000);
+    toast('Cover downloaded (1080×1350)');
+  },'image/png');
+}
+function fullCaption(){
+  const cap=$('#captionFinal').value.trim();
+  const tags=[...S.tags].map(t=>'#'+t).join(' ');
+  return (cap+'\n\n'+tags).trim();
+}
+async function copy(str,msg){ try{ await navigator.clipboard.writeText(str); toast(msg);}catch(e){ // fallback
+    const ta=document.createElement('textarea'); ta.value=str; document.body.appendChild(ta); ta.select(); document.execCommand('copy'); ta.remove(); toast(msg);} }
+
+/* ---------- queue / drafts ---------- */
+function currentDraft(){
+  return {
+    id:Date.now(), type:S.type, style:S.style, reach:TYPES[S.type].reach,
+    headline:$('#headlineFinal').value.trim(),
+    caption:$('#captionFinal').value.trim(),
+    tags:[...S.tags], handle:$('#handle').value, cat:$('#catTag').value,
+    source:$('#source').value, hook:$('#hook').value, body:$('#body').value, cta:$('#cta').value,
+    subject:$('#subject').value, claim:$('#claim').value, anchor:$('#anchor').value,
+    format:S.format, nickname:$('#nickname').value,
+    thumb:safeThumb(),
+  };
+}
+function safeThumb(){ try{ return $('#cover').toDataURL('image/jpeg',0.6); }catch(e){ return ''; } }
+function saveDraft(){
+  const d=currentDraft();
+  if(!d.headline && !d.caption){ toast('Nothing to save yet'); return; }
+  const all=getDrafts(); all.unshift(d); localStorage.setItem('gy_drafts',JSON.stringify(all));
+  $('#draftPill').textContent='Saved '+new Date(d.id).toLocaleTimeString();
+  toast('Saved to queue'); renderQueue();
+}
+function getDrafts(){ try{return JSON.parse(localStorage.getItem('gy_drafts')||'[]');}catch(e){return[];} }
+function renderQueue(){
+  const all=getDrafts(); const q=$('#queue'); q.innerHTML='';
+  $('#queueEmpty').style.display=all.length?'none':'block';
+  all.forEach(d=>{
+    const badge = d.reach==='travels'?'<span class="badge outrage">outrage</span>':d.reach==='stays'?'<span class="badge warmth">warmth</span>':'<span class="badge news">mid</span>';
+    const c=document.createElement('div'); c.className='qcard';
+    c.innerHTML=`<img src="${esc(d.thumb||'')}" alt="">
+      <div class="body"><div class="t">${esc((d.headline||'(no headline)').slice(0,90))}</div>
+      <div class="m">${badge}<span>${esc(TYPES[d.type]?TYPES[d.type].label:d.type)}</span></div>
+      <div class="btn-row"><button class="btn" data-load="${d.id}">Load</button><button class="btn" data-del="${d.id}">Delete</button></div>
+      </div>`;
+    q.appendChild(c);
+  });
+  $$('[data-load]').forEach(b=>b.onclick=()=>loadDraft(+b.dataset.load));
+  $$('[data-del]').forEach(b=>b.onclick=()=>{ const all=getDrafts().filter(d=>d.id!==+b.dataset.del); localStorage.setItem('gy_drafts',JSON.stringify(all)); renderQueue(); toast('Deleted'); });
+}
+function loadDraft(id){
+  const d=getDrafts().find(x=>x.id===id); if(!d)return;
+  S.type=d.type; S.style=d.style; S.tags=new Set(d.tags); S.format=d.format||'carousel';
+  $('#anchor').value=d.anchor||'York University'; $('#subject').value=d.subject||''; $('#claim').value=d.claim||'';
+  $('#headlineFinal').value=d.headline||''; $('#hook').value=d.hook||''; $('#body').value=d.body||'';
+  $('#cta').value=d.cta||''; $('#source').value=d.source||''; $('#captionFinal').value=d.caption||'';
+  $('#handle').value=d.handle||'@get_yorked'; $('#catTag').value=d.cat||''; $('#nickname').value=d.nickname||'';
+  buildTypeChips(); buildStyleRow(); buildFormatChips(); buildTagBank(); syncModeNote(); headlineMeter(); captionMeter(); render(); runChecks();
+  switchTab('studio'); toast('Loaded into Studio');
+}
+
+/* ---------- schedule & publish ---------- */
+function buildPublishSteps(){
+  const steps=['Download the cover PNG','Copy the full post (caption + hashtags)','Open Instagram, new post, upload the PNG (+ any extra carousel slides)','Paste the caption and post','Warmth post? Line up an amplifier reshare or pin a stakes comment'];
+  const el=$('#publishSteps'); if(!el) return; el.innerHTML='';
+  steps.forEach((s,i)=>{ const d=document.createElement('div'); d.className='check';
+    d.innerHTML=`<span class="ic" style="background:rgba(120,160,255,.16);color:#8ea8ff">${i+1}</span><div>${esc(s)}</div>`; el.appendChild(d); });
+}
+function downloadICS(){
+  const t=$('#postTime').value; if(!t){ toast('Pick a post time first'); return; }
+  const d=new Date(t); const e=new Date(d.getTime()+15*60000);
+  const pad=n=>String(n).padStart(2,'0');
+  const fmt=x=>`${x.getFullYear()}${pad(x.getMonth()+1)}${pad(x.getDate())}T${pad(x.getHours())}${pad(x.getMinutes())}00`;
+  // ICS text escaping: backslash first, then , ; , then newlines to literal \n (RFC 5545)
+  const ical=s=>String(s).replace(/\\/g,'\\\\').replace(/([,;])/g,'\\$1').replace(/\r?\n/g,'\\n');
+  const head=ical(($('#headlineFinal').value||'Get Yorked post').replace(/[\r\n]+/g,' '));
+  const body=ical(fullCaption());
+  const ics=['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//GetYorked//PostStudio//EN','CALSCALE:GREGORIAN',
+    'BEGIN:VEVENT','UID:gy-'+d.getTime()+'@getyorked','DTSTAMP:'+fmt(new Date(t)),'DTSTART:'+fmt(d),'DTEND:'+fmt(e),
+    'SUMMARY:Post to @get_yorked\\, '+head,'DESCRIPTION:'+body,'BEGIN:VALARM','TRIGGER:-PT10M','ACTION:DISPLAY','DESCRIPTION:Get Yorked post time','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');
+  const blob=new Blob([ics],{type:'text/calendar'}); const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download='getyorked-post-reminder.ics'; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),4000); toast('Calendar reminder downloaded');
+}
+
+/* ---------- tabs ---------- */
+function switchTab(t){
+  $$('nav.tabs button').forEach(b=>b.classList.toggle('active',b.dataset.tab===t));
+  ['studio','queue','playbook'].forEach(x=>$('#tab-'+x).classList.toggle('hidden',x!==t));
+  if(t==='queue')renderQueue();
+}
+
+/* ---------- toast ---------- */
+let toastT;
+function toast(m){ const el=$('#toast'); el.textContent=m; el.classList.add('show'); clearTimeout(toastT); toastT=setTimeout(()=>el.classList.remove('show'),1600); }
+
+/* ---------- example loader ---------- */
+function loadExample(){
+  const ex=EXAMPLES[S.type]||EXAMPLES.news;
+  $('#anchor').value=ex.anchor; $('#subject').value=ex.subject; $('#claim').value=ex.claim;
+  $('#headlineFinal').value=[ex.anchor,ex.subject,ex.claim].filter(Boolean).join(' ');
+  $('#catTag').value=ex.cat; $('#hook').value=ex.hook; $('#body').value=ex.body; $('#cta').value=ex.cta; $('#source').value=ex.source;
+  genCaption(); headlineMeter(); render(); runChecks(); toast('Example loaded');
+}
+function clearAll(){
+  ['subject','claim','headlineFinal','hook','body','cta','source','catTag','nickname'].forEach(id=>$('#'+id).value='');
+  $('#captionFinal').value=''; $('#headlineVars').innerHTML=''; S.img=null;
+  headlineMeter(); captionMeter(); render(); runChecks();
+}
+
+/* ---------- wire events ---------- */
+function wire(){
+  $$('nav.tabs button').forEach(b=>b.onclick=()=>switchTab(b.dataset.tab));
+  $('#genHeadline').onclick=genHeadlines;
+  $('#genCaption').onclick=genCaption;
+  $('#loadExample').onclick=loadExample;
+  $('#clearAll').onclick=clearAll;
+  $('#copyCaption').onclick=()=>copy($('#captionFinal').value.trim(),'Caption copied');
+  $('#copyAll').onclick=()=>{ if(!accusationGate()){toast('Held, clear the 4 gates first');return;} copy(fullCaption(),'Full post copied'); };
+  $('#downloadPng').onclick=downloadPng;
+  $('#saveDraft').onclick=saveDraft; $('#saveDraft2').onclick=saveDraft;
+  $('#icsBtn').onclick=downloadICS;
+  $('#addTag').onclick=()=>{ let v=$('#customTag').value.trim().replace(/^#/,''); if(!v)return; if(S.tags.size>=5){toast('5 max');return;} S.tags.add(v); $('#customTag').value=''; buildTagBank(); };
+  ['headlineFinal'].forEach(id=>$('#'+id).addEventListener('input',headlineMeter));
+  ['captionFinal'].forEach(id=>$('#'+id).addEventListener('input',captionMeter));
+  ['subject','claim','anchor','catTag','handle','source'].forEach(id=>$('#'+id).addEventListener('input',render));
+  $('#deviceChips').querySelectorAll('.chip').forEach(c=>c.onclick=()=>{
+    const d=c.dataset.dev; if(S.devices.has(d))S.devices.delete(d); else S.devices.add(d);
+    c.classList.toggle('active');
+    $('#nickname').classList.toggle('hidden', !S.devices.has('aka'));
+    genHeadlines();
+  });
+  $('#nickname').addEventListener('input',genHeadlines);
+  // image
+  const drop=$('#drop'), file=$('#file');
+  drop.onclick=()=>file.click();
+  file.onchange=e=>loadImageFile(e.target.files[0]);
+  ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('drag');}));
+  ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('drag');}));
+  drop.addEventListener('drop',e=>loadImageFile(e.dataTransfer.files[0]));
+  $('#imgZoom').oninput=e=>{S.imgZoom=+e.target.value;render();};
+  $('#imgY').oninput=e=>{S.imgY=+e.target.value;render();};
+  $('#scrim').oninput=e=>{S.scrim=+e.target.value;render();};
+}
+
+/* ---------- boot ---------- */
+function boot(){
+  buildTypeChips(); buildStyleRow(); buildFormatChips(); buildSwatches(); buildTagBank(); syncModeNote(); buildPublishSteps();
+  wire(); headlineMeter(); captionMeter(); render(); runChecks(); renderQueue();
+  // ensure canvas re-renders once webfonts arrive
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{fontsReady=true;render();}); }
+  setTimeout(render,600); setTimeout(render,1400);
+}
+boot();
+</script>
+</body>
+</html>
