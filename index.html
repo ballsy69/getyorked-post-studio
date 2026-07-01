@@ -973,6 +973,8 @@ function boot(){
   setTimeout(render,600); setTimeout(render,1400);
 }
 boot();
+// offline support: register the service worker so the app works with no connection
+if('serviceWorker' in navigator){ window.addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{})); }
 </script>
 </body>
 </html>

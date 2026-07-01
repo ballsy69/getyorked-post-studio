@@ -34,4 +34,4 @@ Everything runs in the browser. Your drafts are saved in the browser (localStora
 The whole format spec lives inside the app (Playbook tab) so you never need this file open to remember the rules.
 
 ## Source of the rules
-Distilled from `memory/social/get-yorked-format.md`, `memory/projects/get-yorked.md`, and the warmth-vs-outrage + named-accusation verification memories.
+Distilled from the Get Yorked internal format spec (voice, headline formula, caption bands, reach patterns, and the named-accusation verification discipline).
