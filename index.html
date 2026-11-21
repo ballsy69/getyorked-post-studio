@@ -473,7 +473,7 @@ function buildTypeChips(){
   Object.entries(TYPES).forEach(([k,v])=>{
     const b=document.createElement('button');
     b.className='chip'+(S.type===k?' active':''); b.textContent=v.label; b.dataset.k=k;
-    b.onclick=()=>{S.type=k; S.tags=new Set(TYPES[k].tags); buildTypeChips(); buildTagBank(); syncModeNote(); render();};
+    b.onclick=()=>{S.type=k; S.tags=new Set(TYPES[k].tags); buildTypeChips(); buildTagBank(); syncModeNote(); headlineMeter();};
     el.appendChild(b);
   });
 }
@@ -587,20 +587,22 @@ function genCaption(){
 }
 
 /* ---------- meters ---------- */
-function lineCount(s){return s.split('\n').filter(x=>x.trim()).length;}
 function headlineMeter(){
   const v=$('#headlineFinal').value.trim();
-  const lines=lineCount(v)|| (v?1:0);
+  // count the lines exactly as the cover draws them (wrapping + auto-shrink), not the typed line breaks
+  const L=v?coverHeadlineLayout(v):null;
+  const lines=L?L.needed:0;
   const words=v?v.split(/\s+/).length:0;
   const yorkAnchored=/^\s*(york|yorku|a york)/i.test(v);
   const isNews=TYPES[S.type].mode==='news';
   const cap=isNews?4:2;
   const lo=isNews?2:1;
   const inRange = !v || (lines>=lo && lines<=cap);
-  const rangeTxt = isNews?'2-4 lines, hard cap 5':'1-2 lines';
+  const rangeTxt = isNews?'2-4 lines':'1-2 lines';
   const el=$('#headlineMeter');
-  el.innerHTML=`<span class="${!v?'':inRange?'ok':'mid'}">${words} words · ${lines} line${lines===1?'':'s'} (target ${rangeTxt})${isNews&&v&&lines<2?' · 2-line news cover is the algo default':''}</span>
-    <span class="${yorkAnchored?'ok':'bad'}">${yorkAnchored?'✓ York-anchored':'✗ not York-anchored'}</span>`;
+  el.innerHTML=`<span class="${!v?'':inRange?'ok':'mid'}">${words} words · ${lines} line${lines===1?'':'s'} on the cover (target ${rangeTxt})${isNews&&v&&lines<2?' · 2-line news cover is the algo default':''}</span>
+    <span class="${yorkAnchored?'ok':'bad'}">${yorkAnchored?'✓ York-anchored':'✗ not York-anchored'}</span>
+    ${L&&L.cut?`<span class="bad">✗ cut off on the cover: needs ${L.needed} lines, only ${L.maxLines} fit</span>`:''}`;
   render(); runChecks();
 }
 function captionMeter(){
@@ -630,8 +632,9 @@ function runChecks(){
   const sentences=(h.match(/[.!?]/g)||[]).length;
   checks.push(cond(sentences<=2,'One clear claim on the cover','Cover is running multiple sentences, trim to one declarative + optional tag-on','warn'));
   // line cap
-  const lines=lineCount(h)||(h?1:0);
-  checks.push(cond(lines<=5,'Headline within line cap (&le;5)',`Headline is ${lines} lines, over the hard cap of 5`, 'fail'));
+  const L=h?coverHeadlineLayout(h):null;
+  checks.push(cond(!(L&&L.cut),'Whole headline fits on the cover',
+    L?`The cover cuts the headline off with "…". It needs ${L.needed} lines but only ${L.maxLines} fit on a ${TYPES[S.type].mode==='news'?'news':'non-news'} cover. Shorten it.`:'', 'fail'));
   // em dash
   checks.push(cond(!hasDash(h+' '+cap),'No em-dashes','Remove em / en-dashes and -- (universal Bob rule)','fail'));
   // caption band (by chosen post format)
@@ -739,11 +742,12 @@ function drawCover(x,img,W,H){
   x.drawImage(img,dx,dy,dw,dh);
 }
 
-function drawHeadline(x,text,W,H,pad,st,topBound){
-  const maxW=W-pad*2;
+/* Lay out the headline exactly as the cover will draw it. Used by the cover itself,
+   the headline meter and the pre-flight check, so they can never disagree. */
+function layoutHeadline(x,text,maxW){
   let size=104; const floor=64; const maxLines=(TYPES[S.type].mode==='news')?4:2;
   let lines=[];
-  x.textAlign='left';
+  x.save(); x.textAlign='left';
   while(size>=floor){
     x.font=`700 ${size}px "Space Grotesk",sans-serif`;
     lines=wrap(x,text,maxW);
@@ -752,8 +756,17 @@ function drawHeadline(x,text,W,H,pad,st,topBound){
   }
   x.font=`700 ${size}px "Space Grotesk",sans-serif`;
   lines=wrap(x,text,maxW);
+  x.restore();
+  const needed=lines.length, cut=needed>maxLines;
   // still over the cap at the floor: hard-truncate with an ellipsis so nothing spills off-canvas
-  if(lines.length>maxLines){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/[\s.,]+$/,'')+'…'; }
+  if(cut){ lines=lines.slice(0,maxLines); lines[maxLines-1]=lines[maxLines-1].replace(/[\s.,]+$/,'')+'…'; }
+  return {lines,size,needed,maxLines,cut};
+}
+function coverHeadlineLayout(text){ return layoutHeadline($('#cover').getContext('2d'),text,1080-64*2); }
+function drawHeadline(x,text,W,H,pad,st,topBound){
+  const maxW=W-pad*2;
+  const {lines,size}=layoutHeadline(x,text,maxW);
+  x.textAlign='left'; x.font=`700 ${size}px "Space Grotesk",sans-serif`;
   const lh=size*1.06;
   const blockH=lines.length*lh;
   const srcReserve = $('#source').value.trim()?66:40;
@@ -778,6 +791,8 @@ function drawHeadline(x,text,W,H,pad,st,topBound){
   });
 }
 function wrap(x,text,maxW){
+  // a typed line break starts a new line on the cover
+  if(/\n/.test(text)) return text.split(/\n/).map(t=>t.trim()).filter(Boolean).flatMap(t=>wrap(x,t,maxW));
   const words=text.split(/\s+/).filter(Boolean); const lines=[]; let cur='';
   const hardBreak=w=>{ // a single token wider than the line: break it by characters
     while(x.measureText(w).width>maxW && w.length>1){
@@ -814,6 +829,8 @@ async function downloadPng(){
   if(!accusationGate()) { toast('Export held, clear the 4 gates first'); return; }
   try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(e){}
   render();
+  const hl=$('#headlineFinal').value.trim(), L=hl?coverHeadlineLayout(hl):null;
+  if(L&&L.cut&&!confirm('The headline is cut off on this cover (it ends in "…").\n\nShorten it first, or click OK to download it cut off anyway.')){ toast('Download held, shorten the headline'); return; }
   $('#cover').toBlob(b=>{
     if(!b){ toast('Export failed, try again'); return; }
     const a=document.createElement('a');
@@ -969,7 +986,7 @@ function boot(){
   buildTypeChips(); buildStyleRow(); buildFormatChips(); buildSwatches(); buildTagBank(); syncModeNote(); buildPublishSteps();
   wire(); headlineMeter(); captionMeter(); render(); runChecks(); renderQueue();
   // ensure canvas re-renders once webfonts arrive
-  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{fontsReady=true;render();}); }
+  if(document.fonts && document.fonts.ready){ document.fonts.ready.then(()=>{fontsReady=true;headlineMeter();}); }
   setTimeout(render,600); setTimeout(render,1400);
 }
 boot();
